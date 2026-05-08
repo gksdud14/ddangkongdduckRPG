@@ -15,6 +15,26 @@
 			<div>현재 지역: <strong id="selectedAreaName">초원 지역</strong></div>
 		</div>
 
+		<section class="panel map-panel">
+			<h2>월드맵</h2>
+
+			<canvas id="worldMap" width="720" height="420"></canvas>
+
+			<p id="mapMessage" class="map-message">
+				방향키/WASD 또는 모바일 방향 버튼으로 이동하세요.
+			</p>
+			
+			<div class="mobile-controls">
+				<button type="button" class="move-btn up" data-direction="up">▲</button>
+
+				<div class="mobile-controls-row">
+					<button type="button" class="move-btn left" data-direction="left">◀</button>
+					<button type="button" class="move-btn down" data-direction="down">▼</button>
+					<button type="button" class="move-btn right" data-direction="right">▶</button>
+				</div>
+			</div>
+		</section>
+
 		<section class="battle-screen">
 			<div class="battle-bg" id="battleBg">
 				<div class="battle-unit player-unit" id="playerUnit">
@@ -120,6 +140,7 @@
 					<h3>장착 중</h3>
 					<p>무기: <strong id="equippedWeapon">없음</strong></p>
 					<p>방어구: <strong id="equippedArmor">없음</strong></p>
+					<div id="activeSetList" class="active-set-list"></div>
 				</div>
 
 				<div class="inventory-box">
@@ -146,5 +167,6 @@
 	</div>
 
 	<script src="game.js"></script>
+	<script src="map.js"></script>
 </body>
 </html>

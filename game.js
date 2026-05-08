@@ -47,6 +47,8 @@ const resetSaveBtn = document.getElementById('resetSaveBtn');
 
 const bossListEl = document.getElementById('bossList');
 
+const activeSetListEl = document.getElementById('activeSetList');
+
 const SAVE_KEY = 'miniInflationRpgSave';
 
 let isBattling = false;
@@ -179,6 +181,36 @@ const itemGrades = {
 	}
 };
 
+const itemSets = {
+	dragon_set: {
+		name: '드래곤 세트',
+		requiredCount: 2,
+		bonus: {
+			atk: 30,
+			def: 30,
+			maxHp: 200
+		}
+	},
+	shadow_set: {
+		name: '그림자 세트',
+		requiredCount: 2,
+		bonus: {
+			atk: 45,
+			def: 10,
+			maxHp: 100
+		}
+	},
+	legend_set: {
+		name: '전설 세트',
+		requiredCount: 2,
+		bonus: {
+			atk: 80,
+			def: 80,
+			maxHp: 500
+		}
+	}
+};
+
 const dropItemPool = {
 	weapon: [
 		// Common Weapon
@@ -255,6 +287,7 @@ const dropItemPool = {
 			type: 'weapon',
 			name: '드래곤 소드',
 			grade: 'epic',
+			setId: 'dragon_set',
 			atk: 42,
 			def: 0
 		},
@@ -263,6 +296,7 @@ const dropItemPool = {
 			type: 'weapon',
 			name: '그림자 검',
 			grade: 'epic',
+			setId: 'shadow_set',
 			atk: 48,
 			def: 2
 		},
@@ -289,6 +323,7 @@ const dropItemPool = {
 			type: 'weapon',
 			name: '천공의 검',
 			grade: 'legendary',
+			setId: 'legend_set',
 			atk: 85,
 			def: 5
 		},
@@ -393,6 +428,7 @@ const dropItemPool = {
 			type: 'armor',
 			name: '드래곤 아머',
 			grade: 'epic',
+			setId: 'dragon_set',
 			atk: 0,
 			def: 42
 		},
@@ -401,6 +437,7 @@ const dropItemPool = {
 			type: 'armor',
 			name: '그림자 망토',
 			grade: 'epic',
+			setId: 'shadow_set',
 			atk: 8,
 			def: 38
 		},
@@ -427,6 +464,7 @@ const dropItemPool = {
 			type: 'armor',
 			name: '황금 갑옷',
 			grade: 'legendary',
+			setId: 'legend_set',
 			atk: 5,
 			def: 85
 		},
@@ -509,6 +547,8 @@ function initGame() {
 		level: 1,
 		exp: 0,
 		nextExp: 30,
+		
+		baseMaxHp: 100,
 		maxHp: 100,
 		hp: 100,
 
@@ -565,8 +605,12 @@ function recalculateStats() {
 		equipDef += player.equipped.armor.def;
 	}
 
-	player.atk = player.baseAtk + equipAtk;
-	player.def = player.baseDef + equipDef;
+	const setBonusData = getActiveSetBonuses();
+
+	player.atk = player.baseAtk + equipAtk + setBonusData.totalBonus.atk;
+	player.def = player.baseDef + equipDef + setBonusData.totalBonus.def;
+	player.maxHp = player.baseMaxHp + setBonusData.totalBonus.maxHp;
+	player.hp = player.maxHp;
 }
 
 speedButtons.forEach(function(button) {
@@ -841,8 +885,7 @@ function checkLevelUp() {
 		player.level++;
 		levelUpCount++;
 
-		player.maxHp += 20;
-		player.hp = player.maxHp;
+		player.baseMaxHp += 20;
 		player.baseAtk += 4;
 		player.baseDef += 2;
 
@@ -938,6 +981,8 @@ function renderInventory() {
 	equippedWeaponEl.textContent = player.equipped.weapon ? player.equipped.weapon.name : '없음';
 	equippedArmorEl.textContent = player.equipped.armor ? player.equipped.armor.name : '없음';
 
+	renderActiveSets();
+
 	if(player.inventory.length === 0) {
 		inventoryListEl.innerHTML = '<p class="empty-text">보유 장비가 없습니다.</p>';
 		return;
@@ -965,6 +1010,7 @@ function renderInventory() {
 			<div class="inventory-item ${isEquipped ? 'equipped' : ''} ${gradeInfo.className}">
 				<strong>${item.name}</strong>
 				<p>${gradeInfo.name} / ${typeName} / ATK +${item.atk} / DEF +${item.def}</p>
+				${item.setId && itemSets[item.setId] ? `<p>세트: ${itemSets[item.setId].name}</p>` : ''}
 				<p class="${compareInfo.className}">${compareInfo.text}</p>
 				<p>판매가: ${sellPrice} GOLD</p>
 
@@ -981,6 +1027,32 @@ function renderInventory() {
 	});
 
 	inventoryListEl.innerHTML = html;
+}
+
+function renderActiveSets() {
+	const setBonusData = getActiveSetBonuses();
+
+	if(!activeSetListEl) {
+		return;
+	}
+
+	if(setBonusData.activeSets.length === 0) {
+		activeSetListEl.innerHTML = '<p class="no-set">발동 중인 세트 효과 없음</p>';
+		return;
+	}
+
+	let html = '';
+
+	setBonusData.activeSets.forEach(function(set) {
+		html += `
+			<div class="active-set">
+				<strong>${set.name} 발동</strong>
+				<p>ATK +${set.bonus.atk || 0} / DEF +${set.bonus.def || 0} / HP +${set.bonus.maxHp || 0}</p>
+			</div>
+		`;
+	});
+
+	activeSetListEl.innerHTML = html;
 }
 
 function sellItem(itemId) {
@@ -1266,6 +1338,7 @@ function rollDropItem(options = {}) {
 		type: baseItem.type,
 		name: baseItem.name,
 		grade: baseItem.grade,
+		setId: baseItem.setId || null,
 		atk: baseItem.atk,
 		def: baseItem.def
 	};
@@ -1581,6 +1654,64 @@ async function battleBoss(bossId) {
 	if(!gameEnded) {
 		battleBtn.disabled = false;
 	}
+}
+
+function getActiveSetBonuses() {
+	const equippedItems = [];
+
+	if(player.equipped.weapon) {
+		equippedItems.push(player.equipped.weapon);
+	}
+
+	if(player.equipped.armor) {
+		equippedItems.push(player.equipped.armor);
+	}
+
+	const setCountMap = {};
+
+	equippedItems.forEach(function(item) {
+		if(!item.setId) {
+			return;
+		}
+
+		if(!setCountMap[item.setId]) {
+			setCountMap[item.setId] = 0;
+		}
+
+		setCountMap[item.setId]++;
+	});
+
+	const activeSets = [];
+	const totalBonus = {
+		atk: 0,
+		def: 0,
+		maxHp: 0
+	};
+
+	Object.keys(setCountMap).forEach(function(setId) {
+		const setInfo = itemSets[setId];
+
+		if(!setInfo) {
+			return;
+		}
+
+		if(setCountMap[setId] >= setInfo.requiredCount) {
+			activeSets.push({
+				id: setId,
+				name: setInfo.name,
+				bonus: setInfo.bonus
+			});
+
+			totalBonus.atk += setInfo.bonus.atk || 0;
+			totalBonus.def += setInfo.bonus.def || 0;
+			totalBonus.maxHp += setInfo.bonus.maxHp || 0;
+		}
+	});
+
+	return {
+		activeSets: activeSets,
+		totalBonus: totalBonus
+	};
 }
 
 resultCloseBtn.addEventListener('click', function() {

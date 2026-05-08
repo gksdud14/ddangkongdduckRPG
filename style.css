@@ -661,3 +661,92 @@ h2 {
 	color: #aaa;
 	cursor: default;
 }
+
+.active-set-list {
+	margin-top: 10px;
+}
+
+.no-set {
+	color: #aaa;
+	font-size: 13px;
+	margin: 8px 0 0;
+}
+
+.active-set {
+	margin-top: 8px;
+	padding: 10px;
+	border: 1px solid #ffb300;
+	border-radius: 6px;
+	background: rgba(255, 179, 0, 0.12);
+}
+
+.active-set strong {
+	color: #ffb300;
+	display: block;
+	margin-bottom: 4px;
+}
+
+.active-set p {
+	margin: 0;
+	color: #ddd;
+	font-size: 13px;
+}
+
+.map-panel {
+	margin-bottom: 16px;
+}
+
+#worldMap {
+	width: 100%;
+	max-width: 720px;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+	background: #111;
+	border: 1px solid #444;
+	border-radius: 8px;
+	image-rendering: pixelated;
+}
+
+.map-message {
+	margin: 10px 0 0;
+	color: #ccc;
+	text-align: center;
+	font-size: 14px;
+}
+
+.mobile-controls {
+	display: none;
+	margin-top: 12px;
+	text-align: center;
+	user-select: none;
+}
+
+.mobile-controls-row {
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 8px;
+}
+
+.move-btn {
+	width: 58px;
+	height: 58px;
+	border-radius: 12px;
+	background: #333;
+	border: 1px solid #555;
+	color: #fff;
+	font-size: 24px;
+	font-weight: bold;
+	touch-action: none;
+}
+
+.move-btn:active {
+	background: #4da3ff;
+}
+
+@media screen and (max-width: 768px) {
+	.mobile-controls {
+		display: block;
+	}
+}
