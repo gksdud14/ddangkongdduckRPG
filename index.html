@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mini Inflation RPG</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="game-wrap">
+		<h1>땅콩떡 RPG</h1>
+
+		<div class="top-info">
+			<div>남은 전투: <strong id="battleCount">30</strong></div>
+			<div>현재 지역: <strong id="selectedAreaName">초원 지역</strong></div>
+		</div>
+
+		<section class="battle-screen">
+			<div class="battle-bg" id="battleBg">
+				<div class="battle-unit player-unit" id="playerUnit">
+					<div class="unit-name">Player</div>
+					<div class="unit-box player-box">🧍</div>
+					<div class="hp-bar">
+						<div class="hp-fill" id="playerHpBar"></div>
+					</div>
+					<div class="hp-text">
+						<span id="playerBattleHp">100</span> / <span id="playerBattleMaxHp">100</span>
+					</div>
+				</div>
+
+				<div class="battle-message" id="battleMessage">
+					지역을 선택하고 전투를 시작하세요.
+				</div>
+
+				<div class="battle-unit monster-unit" id="monsterUnit">
+					<div class="unit-name" id="monsterName">Slime</div>
+					<div class="unit-box monster-box" id="monsterIcon">👾</div>
+					<div class="hp-bar">
+						<div class="hp-fill monster-hp-fill" id="monsterHpBar"></div>
+					</div>
+					<div class="hp-text">
+						<span id="monsterBattleHp">0</span> / <span id="monsterBattleMaxHp">0</span>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<div class="layout">
+			<section class="panel status-panel">
+				<h2>캐릭터 상태</h2>
+
+				<ul class="status-list">
+					<li>Level <strong id="level">1</strong></li>
+					<li>EXP <strong id="exp">0</strong> / <span id="nextExp">30</span></li>
+					<li>HP <strong id="hp">100</strong> / <span id="maxHp">100</span></li>
+					<li>ATK <strong id="atk">10</strong></li>
+					<li>DEF <strong id="def">3</strong></li>
+					<li>GOLD <strong id="gold">0</strong></li>
+				</ul>
+
+				<button type="button" id="battleBtn" class="main-btn">전투하기</button>
+				
+				<div class="speed-buttons">
+					<button type="button" class="speed-btn active" data-speed="1">x1</button>
+					<button type="button" class="speed-btn" data-speed="2">x2</button>
+					<button type="button" class="speed-btn" data-speed="skip">SKIP</button>
+				</div>
+				
+				<button type="button" id="restartBtn" class="sub-btn">새 회차 시작</button>
+				<button type="button" id="resetSaveBtn" class="danger-btn">저장 장비 삭제</button>
+			</section>
+
+			<section class="panel area-panel">
+				<h2>지역 선택</h2>
+
+				<div id="areaList" class="area-list"></div>
+				
+				<div class="boss-box">
+					<h2>보스 도전</h2>
+					<div id="bossList" class="boss-list"></div>
+				</div>
+			</section>
+
+			<section class="panel shop-panel">
+				<h2>상점</h2>
+
+				<div class="shop-item">
+					<div>
+						<strong>낡은 검</strong>
+						<p>ATK +5 / 30 GOLD</p>
+					</div>
+					<button type="button" data-item="sword1">구매</button>
+				</div>
+
+				<div class="shop-item">
+					<div>
+						<strong>강철 검</strong>
+						<p>ATK +15 / 120 GOLD</p>
+					</div>
+					<button type="button" data-item="sword2">구매</button>
+				</div>
+
+				<div class="shop-item">
+					<div>
+						<strong>가죽 갑옷</strong>
+						<p>DEF +5 / 40 GOLD</p>
+					</div>
+					<button type="button" data-item="armor1">구매</button>
+				</div>
+
+				<div class="shop-item">
+					<div>
+						<strong>강철 갑옷</strong>
+						<p>DEF +15 / 140 GOLD</p>
+					</div>
+					<button type="button" data-item="armor2">구매</button>
+				</div>
+				
+				<div class="equipment-box">
+					<h3>장착 중</h3>
+					<p>무기: <strong id="equippedWeapon">없음</strong></p>
+					<p>방어구: <strong id="equippedArmor">없음</strong></p>
+				</div>
+
+				<div class="inventory-box">
+					<h3>보유 장비</h3>
+					<div id="inventoryList" class="inventory-list"></div>
+				</div>
+			</section>
+		</div>
+
+		<section class="panel log-panel">
+			<h2>전투 로그</h2>
+			<div id="logBox" class="log-box"></div>
+		</section>
+		
+		<div id="resultModal" class="result-modal">
+			<div class="result-box">
+				<h2 id="resultTitle">전투 결과</h2>
+
+				<div id="resultContent" class="result-list"></div>
+
+				<button type="button" id="resultCloseBtn">확인</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="game.js"></script>
+</body>
+</html>
