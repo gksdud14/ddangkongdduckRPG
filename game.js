@@ -1438,36 +1438,48 @@ function getEquippedItemByType(type) {
 }
 
 function getItemCompareText(item) {
-	const equippedItem = getEquippedItemByType(item.type);
+	const currentStats = calculateStatsByEquipped(player.equipped);
 
-	if(!equippedItem) {
-		return {
-			text: '현재 장착 장비 없음',
-			className: 'compare-good'
-		};
+	const simulatedEquipped = {
+		weapon: player.equipped.weapon,
+		armor: player.equipped.armor
+	};
+
+	if(item.type === 'weapon') {
+		simulatedEquipped.weapon = item;
 	}
 
-	const itemPower = Math.round(getItemPower(item));
-	const equippedPower = Math.round(getItemPower(equippedItem));
-	const diff = itemPower - equippedPower;
-
-	if(diff > 0) {
-		return {
-			text: `현재 장비보다 +${diff} 좋음`,
-			className: 'compare-good'
-		};
+	if(item.type === 'armor') {
+		simulatedEquipped.armor = item;
 	}
 
-	if(diff < 0) {
-		return {
-			text: `현재 장비보다 ${diff} 낮음`,
-			className: 'compare-bad'
-		};
+	const simulatedStats = calculateStatsByEquipped(simulatedEquipped);
+
+	const atkDiff = simulatedStats.atk - currentStats.atk;
+	const defDiff = simulatedStats.def - currentStats.def;
+	const hpDiff = simulatedStats.maxHp - currentStats.maxHp;
+
+	const totalDiff = Math.round(
+		atkDiff * 1.2 +
+		defDiff * 1.0 +
+		hpDiff * 0.03
+	);
+
+	let className = 'compare-same';
+
+	if(totalDiff > 0) {
+		className = 'compare-good';
+	} else if(totalDiff < 0) {
+		className = 'compare-bad';
 	}
+
+	const signAtk = atkDiff > 0 ? '+' : '';
+	const signDef = defDiff > 0 ? '+' : '';
+	const signHp = hpDiff > 0 ? '+' : '';
 
 	return {
-		text: '현재 장비와 동일',
-		className: 'compare-same'
+		text: `장착 시 ATK ${signAtk}${atkDiff} / DEF ${signDef}${defDiff} / HP ${signHp}${hpDiff}`,
+		className: className
 	};
 }
 
@@ -1657,14 +1669,42 @@ async function battleBoss(bossId) {
 }
 
 function getActiveSetBonuses() {
-	const equippedItems = [];
+	return getActiveSetBonusesByEquipped(player.equipped);
+}
 
-	if(player.equipped.weapon) {
-		equippedItems.push(player.equipped.weapon);
+function calculateStatsByEquipped(equipped) {
+	let equipAtk = 0;
+	let equipDef = 0;
+
+	if(equipped.weapon) {
+		equipAtk += equipped.weapon.atk;
+		equipDef += equipped.weapon.def;
 	}
 
-	if(player.equipped.armor) {
-		equippedItems.push(player.equipped.armor);
+	if(equipped.armor) {
+		equipAtk += equipped.armor.atk;
+		equipDef += equipped.armor.def;
+	}
+
+	const setBonusData = getActiveSetBonusesByEquipped(equipped);
+
+	return {
+		atk: player.baseAtk + equipAtk + setBonusData.totalBonus.atk,
+		def: player.baseDef + equipDef + setBonusData.totalBonus.def,
+		maxHp: player.baseMaxHp + setBonusData.totalBonus.maxHp,
+		activeSets: setBonusData.activeSets
+	};
+}
+
+function getActiveSetBonusesByEquipped(equipped) {
+	const equippedItems = [];
+
+	if(equipped.weapon) {
+		equippedItems.push(equipped.weapon);
+	}
+
+	if(equipped.armor) {
+		equippedItems.push(equipped.armor);
 	}
 
 	const setCountMap = {};
