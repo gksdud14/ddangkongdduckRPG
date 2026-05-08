@@ -344,7 +344,7 @@ function checkCurrentArea() {
 		selectArea(area.id);
 	}
 
-	mapMessageEl.textContent = `${area.name}에 진입했습니다. 기존 전투하기 버튼으로 전투를 진행하세요.`;
+	mapMessageEl.textContent = `${area.name}에 진입했습니다. 전투하기 버튼으로 전투를 진행하세요.`;
 }
 
 function drawMap() {
